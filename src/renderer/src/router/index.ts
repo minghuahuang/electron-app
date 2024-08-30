@@ -7,7 +7,17 @@ const router = createRouter({
 })
 
 // 前置守卫
-router.beforeEach(() => {})
+router.beforeEach((to) => {
+    if(to.path == '/login') {
+        return
+    }
+
+    if(!localStorage.getItem('TOKEN')) {
+        return '/login'
+    }
+
+    return ;
+})
 
 // 后置守卫
 router.afterEach(() => {})

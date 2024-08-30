@@ -4,8 +4,8 @@ import zh from './lang/zh-cn'
 import en from './lang/en'
 
 //element语言包
-import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
-import English from 'element-plus/dist/locale/en.mjs';
+// import zhCn from 'element-plus/dist/locale/zh-cn.mjs';
+// import English from 'element-plus/dist/locale/en.mjs';
 
 const messages = {
     // 'cn': {

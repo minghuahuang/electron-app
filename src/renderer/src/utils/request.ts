@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { AxiosInstance, AxiosResponse } from "axios";
 
 const request = axios.create({
     baseURL: '/api',
@@ -23,4 +23,31 @@ request.interceptors.response.use(function (response) {
     return Promise.reject(error);
   });
 
-export default request
+const http = {
+  get<T>(url: string, params?: any, config?: {}): Promise<T> {
+    return new Promise((resolve, reject) => {
+      request
+        .get<T>(url, { params,...config } )
+        .then((res: AxiosResponse<T>) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  },
+  post<T>(url: string, data?: any, config?: {}): Promise<T> {
+    return new Promise((resolve, reject) => {
+      request
+        .post<T>(url, data, config)
+        .then((res: AxiosResponse<T>) => {
+          resolve(res.data);
+        })
+        .catch((error) => {
+          reject(error);
+        });
+    });
+  },
+};
+
+export default http

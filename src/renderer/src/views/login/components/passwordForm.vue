@@ -47,7 +47,12 @@
     </div>
 
     <el-form-item>
-      <el-button type="primary" round style="width: 100%" @click="login(ruleFormRef)"
+      <el-button
+        :Loading="isLogin"
+        type="primary"
+        round
+        style="width: 100%"
+        @click="login(ruleFormRef)"
         >登录</el-button
       >
     </el-form-item>
@@ -95,10 +100,12 @@ onBeforeMount(()=>{
 })
 
 //登录
+const isLogin = ref(false)
 const login = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate(async (valid) => {
     if (valid) {
+      isLogin.value = true
       let res = await fetchLogin({
         username:Encrypt(ruleForm.username),
         password:Encrypt(ruleForm.password),
@@ -108,6 +115,11 @@ const login = async (formEl: FormInstance | undefined) => {
       if( res.code != '200' ){
         return ElMessage.error(res.msg);
       }
+
+      const token = res.data
+      localStorage.setItem('TOKEN', token || '')
+      isLogin.value = false
+
     } else {
         return ElMessage.warning('请填写正确内容');
     }
