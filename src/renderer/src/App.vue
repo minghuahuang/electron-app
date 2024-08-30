@@ -1,19 +1,36 @@
 <script setup lang="ts">
-const ipcHandle = () => window.electron.ipcRenderer.send('ping')
+import { onBeforeMount, ref } from "vue";
+
+onBeforeMount(() => {
+  const dark = ref(localStorage.getItem("dark"));
+  const element = document.querySelector("html") as HTMLHtmlElement | null;
+
+  if (element) {
+    if (dark.value == "dark") {
+      element.className = "dark";
+    } else {
+      element.className = "";
+    }
+  }
+});
 </script>
 
 <template>
+  <!-- <div class="drag"></div> -->
   <router-view></router-view>
 </template>
 
-<style>
-* {
-  padding: 0;
-  margin: 0;
-}
+<style lang="scss">
+@import "./assets/css/style.scss";
 
-a {
-  color: #333;
-  text-decoration: none;
-}
+/* .drag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  width: 100%;
+  height: 30px;
+  background: transparent;
+  -webkit-app-region: drag;
+} */
 </style>

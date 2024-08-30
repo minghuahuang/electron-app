@@ -6,10 +6,13 @@ import icon from '../../resources/icon.png?asset'
 function createWindow(): void {
   // Create the browser window
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1050,
+    height: 700,
     show: false,
     autoHideMenuBar: true,
+    frame: false, // 无边框
+    resizable: false, // 禁止缩放
+    // titleBarStyle: 'hidden',
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
@@ -21,6 +24,16 @@ function createWindow(): void {
     mainWindow.show()
   })
 
+  // 窗口拖拽
+  ipcMain.handle('custom-position', (_, position) => {
+    mainWindow.setPosition(position.appX, position.appY)
+  })
+
+  // 关闭窗口
+  ipcMain.handle('custom-close', () => {
+    // app.quit() // 退出应用
+    mainWindow.close() // 关闭窗口
+  })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
     shell.openExternal(details.url)
@@ -34,6 +47,7 @@ function createWindow(): void {
   } else {
     mainWindow.loadFile(join(__dirname, '../renderer/index.html'))
   }
+
 }
 
 // This method will be called when Electron has finished

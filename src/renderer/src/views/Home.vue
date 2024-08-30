@@ -1,5 +1,32 @@
 <template lang="">
-    <div class="login">
+    <div class="login" @mousedown="mousedown">
+        <!--按钮-->
+        <div class="login-config">
+            <div class="login-config-btn">
+                <!--换肤-->
+                <el-button circle @click="configDark">
+                    <el-icon v-if="dark =='dark' "><Sunny /></el-icon>
+                    <el-icon v-else><Moon /></el-icon> 
+                </el-button>
+                <!-- 国际化 -->
+                <el-dropdown trigger="click" @command="configLang">
+                    <el-button circle>
+                        <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" role="img" width="1em" height="1em" preserveAspectRatio="xMidYMid meet" viewBox="0 0 512 512"><path d="M478.33 433.6l-90-218a22 22 0 0 0-40.67 0l-90 218a22 22 0 1 0 40.67 16.79L316.66 406h102.67l18.33 44.39A22 22 0 0 0 458 464a22 22 0 0 0 20.32-30.4zM334.83 362L368 281.65L401.17 362z" fill="currentColor"></path><path d="M267.84 342.92a22 22 0 0 0-4.89-30.7c-.2-.15-15-11.13-36.49-34.73c39.65-53.68 62.11-114.75 71.27-143.49H330a22 22 0 0 0 0-44H214V70a22 22 0 0 0-44 0v20H54a22 22 0 0 0 0 44h197.25c-9.52 26.95-27.05 69.5-53.79 108.36c-31.41-41.68-43.08-68.65-43.17-68.87a22 22 0 0 0-40.58 17c.58 1.38 14.55 34.23 52.86 83.93c.92 1.19 1.83 2.35 2.74 3.51c-39.24 44.35-77.74 71.86-93.85 80.74a22 22 0 1 0 21.07 38.63c2.16-1.18 48.6-26.89 101.63-85.59c22.52 24.08 38 35.44 38.93 36.1a22 22 0 0 0 30.75-4.9z" fill="currentColor"></path></svg>
+                    </el-button>
+                    <template #dropdown >
+                        <el-dropdown-menu>
+                            <el-dropdown-item
+                                v-for="item in config.LANG"
+                                :key="item.value"
+                                :command="item"
+                            >{{  item.name }}</el-dropdown-item>
+                        </el-dropdown-menu>
+                    </template>
+                </el-dropdown>
+                <!--关闭软件-->
+                <el-button icon="close" circle type="default" @click="closeWin"></el-button>
+            </div>
+        </div>
         <!--左侧-->
         <div class="login_adv">
             <div class="login_adv_title">
@@ -25,10 +52,10 @@
                     </div>
                 </div>
                 <el-tabs>
-                    <el-tab-pane label="账号登录" lazy style="heigt: 300px">
+                    <el-tab-pane label="账号登录" lazy style="height: 300px">
                         <PasswordForm />
                     </el-tab-pane>
-                    <el-tab-pane label="手机号登录" lazy style="heigt: 300px">
+                    <el-tab-pane label="手机号登录" lazy style="height: 300px">
                         <PhoneForm />
                     </el-tab-pane>
                 </el-tabs>
@@ -51,6 +78,8 @@
 <script setup>
 import PasswordForm from '@views/login/components/passwordForm.vue';
 import PhoneForm from '@views/login/components/phoneForm.vue';
+import { reactive } from 'vue';
+import { useI18n } from 'vue-i18n';
 
 const weChatLogin = () => {
     window.electron.ipcRenderer.invoke('wechat', {
@@ -59,6 +88,63 @@ const weChatLogin = () => {
         data: null
     })
 }
+
+let isKeyDown = ref(false)
+let dinatesX = ref(0)
+let dinatesY = ref(0)
+// 窗口拖拽
+const mousedown = (event) => {
+    isKeyDown.value = true
+    dinatesX.value = event.x
+    dinatesY.value = event.y
+
+    document.onmousemove = (ev) => {
+        if(isKeyDown.value) {
+            const x = ev.screenX - dinatesX.value
+            const y = ev.screenY - dinatesY.value
+
+            window.electron.ipcRenderer.invoke('custom-position', {
+                appX: x,
+                appY: y
+            })
+        }
+    }
+
+    document.onmouseup = () => {
+        isKeyDown.value = false
+    }
+}
+
+// 关闭窗口
+const closeWin = () => {
+    window.electron.ipcRenderer.invoke('custom-close')
+}
+
+// 换肤
+const dark = ref(localStorage.getItem('dark'))
+const configDark = () => {
+    const element = document.querySelector('html')
+    if(element) {
+        if(element.className == 'dark') {
+            element.className = ''
+        } else {
+            element.className = 'dark'
+        }
+    }
+    dark.value = element.className
+    localStorage.setItem('dark',element.className)
+}
+
+// 国际化
+const { t, locale } = useI18n()
+console.log(t)
+const config = reactive({
+    LANG: [
+        { name: "中文", value: 'zh-cn' },
+        { name: '英文', value: 'en' }
+    ]
+})
+const configLang = (item) => {}
 </script>
 
 <style scoped>
@@ -156,5 +242,25 @@ const weChatLogin = () => {
 .login-oauth{
     display: flex;
     justify-content: space-around;
+}
+
+.login-config{
+    position: absolute;
+    right:0px;
+    top:0px;
+    z-index: 999;
+    width: 100%;
+}
+.login-config-btn{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 120px;
+    margin: 10px 10px 0 0;
+    float: right;
+}
+
+.el-button+.el-button{
+    margin-left: 0px;
 }
 </style>

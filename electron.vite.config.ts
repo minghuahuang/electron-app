@@ -1,12 +1,14 @@
-import path, { resolve } from 'path'
+import path, { resolve, dirname } from 'path'
 import { defineConfig, externalizeDepsPlugin, bytecodePlugin } from 'electron-vite'
 import vue from '@vitejs/plugin-vue'
+// import { fileURLToPath } from 'url'
 
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { ElementPlusResolver } from 'unplugin-vue-components/resolvers'
 import Icons from 'unplugin-icons/vite'
 import IconsResolver from 'unplugin-icons/resolver'
+// import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite'
 
 const pathSrc = path.resolve(__dirname, 'src')
 
@@ -39,6 +41,11 @@ export default defineConfig({
     },
     plugins: [
       vue(),
+      // VueI18nPlugin({
+      //   /* options */
+      //   // locale messages resource pre-compile option
+      //   include: resolve(dirname(fileURLToPath(import.meta.url)), './src/renderer/src/locales/**'),
+      // }),
       AutoImport({
         // Auto import functions from Vue, e.g. ref, reactive, toRef...
         // 自动导入 Vue 相关函数，如：ref, reactive, toRef 等
